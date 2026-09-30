@@ -1,7 +1,7 @@
 // SSO token response from https://login.eveonline.com/v2/oauth/token
 export interface TokenResponse {
   readonly access_token: string;
-  readonly token_type: 'Bearer';
+  readonly token_type: "Bearer";
   readonly expires_in: number;
   readonly refresh_token: string;
 }
@@ -25,7 +25,7 @@ export interface CharacterIdentity {
   readonly expiresAt: number; // Unix ms timestamp
 }
 
-// Stored auth session (in-memory only)
+// Stored auth session (sessionStorage-backed for the browser session)
 export interface AuthSession {
   readonly accessToken: string;
   readonly refreshToken: string;

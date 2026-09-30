@@ -1,23 +1,10 @@
 <template>
-  <q-page class="flex flex-center">
-    <div class="column items-center">
-      <img
-        alt="Quasar logo"
-        src="~@/assets/quasar-logo-vertical.svg"
-        style="width: 200px; height: 200px"
-      />
-
-      <q-btn
-        class="q-mt-md"
-        color="primary"
-        to="/second"
-        label="Go to Second Page"
-        no-caps
-      />
+  <q-page class="flex flex-center q-pa-lg">
+    <div class="text-center">
+      <div class="text-h4">Citizens of New Eden</div>
+      <div class="text-body1 text-grey-7 q-mt-sm">
+        NuForge / CoNE proof-of-concept shell
+      </div>
     </div>
   </q-page>
 </template>
-
-<script setup lang="ts">
-//
-</script>

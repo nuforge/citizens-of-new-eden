@@ -1,8 +1,8 @@
 {
-  "name": "cone-scaffold",
+  "name": "citizens-of-new-eden",
   "version": "0.0.1",
   "private": true,
-  "description": "A Quasar Project",
+  "description": "A causal, variable-resolution simulation game layered on EVE Online.",
   "keywords": [
     "quasar",
     "quasar-app",
@@ -12,7 +12,7 @@
     "vue",
     "vuejs"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "nuForge Development",
   "type": "module",
   "scripts": {
     "lint": "oxfmt && oxlint --fix",

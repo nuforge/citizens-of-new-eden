@@ -1,11 +1,11 @@
-import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
-import type { AuthSession, CharacterIdentity } from 'src/types/sso';
+import { defineStore, acceptHMRUpdate } from "pinia";
+import { ref, computed } from "vue";
+import type { AuthSession, CharacterIdentity } from "@/types/sso";
 
-const SESSION_STORAGE_KEY = 'eve_auth_session';
+const SESSION_STORAGE_KEY = "eve_auth_session";
 
 function saveSessionToStorage(session: AuthSession | null): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   if (!session) {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     return;
@@ -14,12 +14,13 @@ function saveSessionToStorage(session: AuthSession | null): void {
 }
 
 function loadSessionFromStorage(): AuthSession | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as AuthSession;
-    if (!parsed?.accessToken || !parsed?.refreshToken || !parsed?.character) return null;
+    if (!parsed?.accessToken || !parsed?.refreshToken || !parsed?.character)
+      return null;
     return parsed;
   } catch {
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -27,27 +28,35 @@ function loadSessionFromStorage(): AuthSession | null {
   }
 }
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore("auth", () => {
   // Session-scoped persistence (sessionStorage) keeps login across refresh
   // but clears on browser session close.
   const session = ref<AuthSession | null>(loadSessionFromStorage());
 
   const isAuthenticated = computed(() => session.value !== null);
-  const character = computed<CharacterIdentity | null>(() => session.value?.character ?? null);
-  const accessToken = computed<string | null>(() => session.value?.accessToken ?? null);
+  const character = computed<CharacterIdentity | null>(
+    () => session.value?.character ?? null
+  );
+  const accessToken = computed<string | null>(
+    () => session.value?.accessToken ?? null
+  );
 
   function setSession(newSession: AuthSession): void {
     session.value = newSession;
     saveSessionToStorage(session.value);
   }
 
-  function updateTokens(accessToken: string, refreshToken: string, expiresAt: number): void {
+  function updateTokens(
+    accessToken: string,
+    refreshToken: string,
+    expiresAt: number
+  ): void {
     if (session.value === null) return;
     session.value = {
       ...session.value,
       accessToken,
       refreshToken,
-      character: { ...session.value.character, expiresAt },
+      character: { ...session.value.character, expiresAt }
     };
     saveSessionToStorage(session.value);
   }
@@ -65,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     updateTokens,
     clearSession,
     // Expose refresh token getter as a function (not computed) to avoid leaking it reactively
-    getRefreshToken: () => session.value?.refreshToken ?? null,
+    getRefreshToken: () => session.value?.refreshToken ?? null
   };
 });
 

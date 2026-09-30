@@ -3,20 +3,24 @@
  * Reference: https://login.eveonline.com/v2/oauth/authorize
  */
 
-const SSO_AUTHORIZE_URL = 'https://login.eveonline.com/v2/oauth/authorize';
-const SSO_TOKEN_URL = 'https://login.eveonline.com/v2/oauth/token';
+const SSO_AUTHORIZE_URL = "https://login.eveonline.com/v2/oauth/authorize";
+const SSO_TOKEN_URL = "https://login.eveonline.com/v2/oauth/token";
 
-import type { TokenResponse, EveJwtPayload, CharacterIdentity } from 'src/types/sso';
+import type {
+  TokenResponse,
+  EveJwtPayload,
+  CharacterIdentity
+} from "@/types/sso";
 
 // --- PKCE helpers ---
 
 function base64UrlEncode(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
-  let binary = '';
+  let binary = "";
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
   }
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 export function generateCodeVerifier(): string {
@@ -28,7 +32,7 @@ export function generateCodeVerifier(): string {
 export async function generateCodeChallenge(verifier: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
+  const digest = await crypto.subtle.digest("SHA-256", data);
   return base64UrlEncode(digest);
 }
 
@@ -50,13 +54,13 @@ export interface SsoAuthParams {
 
 export function buildAuthUrl(params: SsoAuthParams): string {
   const url = new URL(SSO_AUTHORIZE_URL);
-  url.searchParams.set('response_type', 'code');
-  url.searchParams.set('client_id', params.clientId);
-  url.searchParams.set('redirect_uri', params.redirectUri);
-  url.searchParams.set('scope', params.scopes.join(' '));
-  url.searchParams.set('state', params.state);
-  url.searchParams.set('code_challenge', params.codeChallenge);
-  url.searchParams.set('code_challenge_method', 'S256');
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("client_id", params.clientId);
+  url.searchParams.set("redirect_uri", params.redirectUri);
+  url.searchParams.set("scope", params.scopes.join(" "));
+  url.searchParams.set("state", params.state);
+  url.searchParams.set("code_challenge", params.codeChallenge);
+  url.searchParams.set("code_challenge_method", "S256");
   return url.toString();
 }
 
@@ -66,20 +70,20 @@ export async function exchangeCodeForTokens(
   code: string,
   codeVerifier: string,
   clientId: string,
-  redirectUri: string,
+  redirectUri: string
 ): Promise<TokenResponse> {
   const body = new URLSearchParams({
-    grant_type: 'authorization_code',
+    grant_type: "authorization_code",
     code,
     client_id: clientId,
     code_verifier: codeVerifier,
-    redirect_uri: redirectUri,
+    redirect_uri: redirectUri
   });
 
   const response = await fetch(SSO_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString()
   });
 
   if (!response.ok) {
@@ -94,18 +98,18 @@ export async function exchangeCodeForTokens(
 
 export async function refreshAccessToken(
   refreshToken: string,
-  clientId: string,
+  clientId: string
 ): Promise<TokenResponse> {
   const body = new URLSearchParams({
-    grant_type: 'refresh_token',
+    grant_type: "refresh_token",
     refresh_token: refreshToken,
-    client_id: clientId,
+    client_id: clientId
   });
 
   const response = await fetch(SSO_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString()
   });
 
   if (!response.ok) {
@@ -119,16 +123,16 @@ export async function refreshAccessToken(
 // --- JWT parsing (no signature verify in SPA — token arrived directly from EVE) ---
 
 export function parseJwt(token: string): EveJwtPayload {
-  const parts = token.split('.');
+  const parts = token.split(".");
   if (parts.length !== 3) {
-    throw new Error('Invalid JWT format');
+    throw new Error("Invalid JWT format");
   }
   const payload = parts[1];
   if (!payload) {
-    throw new Error('Missing JWT payload');
+    throw new Error("Missing JWT payload");
   }
-  // Restore Base64 padding
-  const padded = payload.replace(/-/g, '+').replace(/_/g, '/');
+  const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
   const decoded = atob(padded);
   return JSON.parse(decoded) as EveJwtPayload;
 }
@@ -138,8 +142,8 @@ export function parseJwt(token: string): EveJwtPayload {
 export function extractCharacterIdentity(token: string): CharacterIdentity {
   const payload = parseJwt(token);
   // sub format: "CHARACTER:EVE:{characterId}"
-  const parts = payload.sub.split(':');
-  const characterId = parseInt(parts[2] ?? '', 10);
+  const parts = payload.sub.split(":");
+  const characterId = parseInt(parts[2] ?? "", 10);
   if (isNaN(characterId)) {
     throw new Error(`Unexpected JWT sub format: ${payload.sub}`);
   }
@@ -147,6 +151,6 @@ export function extractCharacterIdentity(token: string): CharacterIdentity {
     characterId,
     characterName: payload.name,
     owner: payload.owner,
-    expiresAt: payload.exp * 1000, // convert to ms
+    expiresAt: payload.exp * 1000 // convert to ms
   };
 }

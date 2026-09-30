@@ -20,9 +20,9 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
     RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -37,18 +37,10 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       Record<never, never>,
       | '//(index)'
-      | '//second'
     >,
     '//(index)': RouteRecordInfo<
       '//(index)',
       '/',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '//second': RouteRecordInfo<
-      '//second',
-      '/second',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -58,6 +50,13 @@ declare module 'vue-router/auto-routes' {
       '/:path(.*)',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
+      | never
+    >,
+    '/callback': RouteRecordInfo<
+      '/callback',
+      '/callback',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -77,26 +76,33 @@ declare module 'vue-router/auto-routes' {
       routes:
         | '/'
         | '//(index)'
-        | '//second'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/index/(index).vue': {
       routes:
         | '//(index)'
       views:
         | never
-    }
-    'src/pages/index/second.vue': {
-      routes:
-        | '//second'
-      views:
+      pathParamNames:
         | never
     }
     'src/pages/[...path].vue': {
       routes:
         | '/[...path]'
       views:
+        | never
+      pathParamNames:
+        | 'path'
+    }
+    'src/pages/callback.vue': {
+      routes:
+        | '/callback'
+      views:
+        | never
+      pathParamNames:
         | never
     }
   }

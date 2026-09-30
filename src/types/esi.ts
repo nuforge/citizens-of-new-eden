@@ -62,7 +62,7 @@ export interface UniverseIdsResponse {
 
 // Generic ESI response wrapper with ETag support
 export interface EsiResponse<T> {
-  readonly data: T;
+  readonly data: T | null;
   readonly etag: string | null;
   readonly expires: Date | null;
 }
