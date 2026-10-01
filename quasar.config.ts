@@ -42,6 +42,11 @@ export default defineConfig(ctx => {
         // extendTsConfig (tsConfig) {}
       },
 
+      // Quasar's default client prefix is QCLI_. This app uses Vite-style VITE_ vars.
+      env: {
+        clientPrefix: "VITE_"
+      },
+
       // https://v2.quasar.dev/quasar-cli-vite/page-routing-with-vue-router#filename-based-routing
       filenameBasedRouting: true,
 
